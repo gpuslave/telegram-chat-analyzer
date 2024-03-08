@@ -7,6 +7,9 @@ import matplotlib
 import pandas as pd
 import seaborn as sns
 
+'''
+ersaddfas
+'''
 with open('C:\\Users\\lnemt\\Downloads\\Telegram Desktop\\ChatExport_2024-03-08\\result.json',
           encoding="utf8") as chatFile:
     content = chatFile.read()
@@ -87,7 +90,6 @@ sns.barplot(x="word", y="entries", data=kes_dataframe, ax=axs[1])
 sns.barplot(x="word", y="entries", data=sun_dataframe, ax=axs[2])
 sns.barplot(x="word", y="entries", data=kes_dataframe, ax=axs[2])
 matplotlib.pyplot.show()
-
 # df = pd.DataFrame.from_dict(distribution_sunset)
 # df.to_csv (r'test.csv', index=False, header=True)
 # x = int(input())
