@@ -1,16 +1,19 @@
 import json
 import re
 import csv
+import sys
 import matplotlib
 # import pyarrow
 # import numpy as np
 import pandas as pd
 import seaborn as sns
 
-'''
-ersaddfas
-'''
-with open('C:\\Users\\lnemt\\Downloads\\Telegram Desktop\\ChatExport_2024-03-08\\result.json',
+if len(sys.argv) < 2:
+    print("Usage: python alg.py <path to json file>")
+    sys.exit(1)
+
+FILE_PATH = sys.argv[1]
+with open(FILE_PATH, "r",
           encoding="utf8") as chatFile:
     content = chatFile.read()
 # print(content[0:400])
