@@ -78,6 +78,20 @@ def read_json_file(file_path):
         linger_with_exit(1)
 
 
+def create_csv(distribution_set, boundary=27):
+    for key in distribution_set.keys():
+        k = 0
+        with open(str(key) + '.csv', 'w', newline='',
+                  encoding='utf-8') as new_csv:
+            z = csv.writer(new_csv)
+            z.writerow(["word", "entries"])
+            for new_k, new_v in distribution_set[key].items():
+                if k >= boundary:
+                    break
+                z.writerow([new_k, new_v])
+                k += 1
+
+
 if len(sys.argv) < 2:
     print("Usage: python alg.py <path to json file>")
     linger()
@@ -96,81 +110,55 @@ chat_name = "Chat with " + person_name
 print(chat_name)
 
 
-linger()
-exit(0)
+distribution = {
+    you_id: {},
+    person_id: {},
+}
 
-distribution_sunset = {}
-distribution_kessie = {}
-
-messages = parsed["messages"]
-
-for message in messages:
+for message in parsed["messages"]:
     message_string = ""
 
+    # if a message does not contain any plain text entities then skip
     if not message["text_entities"]:
         continue
 
-    for i in range(len(message["text_entities"])):
-        if message["text_entities"][i]["type"] == "plain":
-            message_string = message["text_entities"][i]["text"].lower()
+    # finding plain text entity
+    for entity in message["text_entities"]:
+        if entity["type"] == "plain":
+            message_string = entity["text"].lower()
             break
 
-    # print(message["id"])
     # pattern = r"(\W+)|(\d)"
     PATTERN = r'\W+'
     message_list = list(filter(None, re.split(PATTERN, message_string)))
 
+    # if no plain text words in the message then skip
     if not message_list:
         continue
 
-    # rename str!
-    if message["from"][0:3] == 'sun':
-        for str in message_list:
-            if str in distribution_sunset.keys():
-                distribution_sunset[str] += 1
-            else:
-                distribution_sunset[str] = 1
-    else:
-        for str in message_list:
-            if str in distribution_kessie.keys():
-                distribution_kessie[str] += 1
-            else:
-                distribution_kessie[str] = 1
+    # not to confuse with the id of the message itself
+    message_from_id = int(message["from_id"][4:])
 
-distribution_sunset = dict(
-    sorted(distribution_sunset.items(), key=lambda x: x[1], reverse=True))
-distribution_kessie = dict(
-    sorted(distribution_kessie.items(), key=lambda x: x[1], reverse=True))
+    for word in message_list:
+        distribution[message_from_id][word] = \
+            distribution[message_from_id].get(word, 0) + 1
 
-BOUNDARY = 0
-with open('sun.csv', 'w', newline='', encoding='utf-8') as new_csv:
-    z = csv.writer(new_csv)
-    z.writerow(["word", "entries"])
-    for new_k, new_v in distribution_sunset.items():
-        if BOUNDARY == 35:
-            break
-        z.writerow([new_k, new_v])
-        BOUNDARY += 1
-BOUNDARY = 0
-with open('kes.csv', 'w', newline='', encoding='utf-8') as new_csv:
-    z = csv.writer(new_csv)
-    z.writerow(["word", "entries"])
-    for new_k, new_v in distribution_kessie.items():
-        if BOUNDARY == 35:
-            break
-        z.writerow([new_k, new_v])
-        BOUNDARY += 1
 
-# sns.set()
+for key in distribution.keys():
+    distribution[key] = dict(
+        sorted(distribution[key].items(), key=lambda x: x[1], reverse=True))
 
-sun_dataframe = pd.read_csv("sun.csv")
-kes_dataframe = pd.read_csv("kes.csv")
+create_csv(distribution)
+
+
+you_df = pd.read_csv(str(you_id) + ".csv")
+person_df = pd.read_csv(str(person_id) + ".csv")
 
 fig, axs = matplotlib.pyplot.subplots(nrows=3)
-sns.barplot(x="word", y="entries", data=sun_dataframe, ax=axs[0])
-sns.barplot(x="word", y="entries", data=kes_dataframe, ax=axs[1])
-sns.barplot(x="word", y="entries", data=sun_dataframe, ax=axs[2])
-sns.barplot(x="word", y="entries", data=kes_dataframe, ax=axs[2])
+sns.barplot(x="word", y="entries", data=you_df, ax=axs[0])
+sns.barplot(x="word", y="entries", data=person_df, ax=axs[1])
+sns.barplot(x="word", y="entries", data=you_df, ax=axs[2])
+sns.barplot(x="word", y="entries", data=person_df, ax=axs[2])
 matplotlib.pyplot.show()
 # df = pd.DataFrame.from_dict(distribution_sunset)
 # df.to_csv (r'test.csv', index=False, header=True)
