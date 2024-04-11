@@ -13,14 +13,17 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 FILE_PATH = sys.argv[1]
-with open(FILE_PATH, "r",
-          encoding="utf8") as chatFile:
+with open(FILE_PATH, "r", encoding="utf8") as chatFile:
     content = chatFile.read()
+
+
 # print(content[0:400])
 parsed = json.loads(content)
 
 chat_name = "Chat with " + parsed["name"]
 print(chat_name)
+
+# sys.exit(0)
 
 distribution_sunset = {}
 distribution_kessie = {}
@@ -72,7 +75,7 @@ with open('sun.csv', 'w', newline='', encoding='utf-8') as new_csv:
             break
         z.writerow([new_k, new_v])
         BOUNDARY += 1
-
+BOUNDARY = 0
 with open('kes.csv', 'w', newline='', encoding='utf-8') as new_csv:
     z = csv.writer(new_csv)
     z.writerow(["word", "entries"])
