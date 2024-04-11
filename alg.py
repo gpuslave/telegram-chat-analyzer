@@ -60,36 +60,40 @@ def find_ids(messages, person_id):
             return you_name, you_id, person_name, person_id
 
 
+def read_json_file(file_path):
+    try:
+        with open(file_path, "r", encoding="utf8") as chatFile:
+            if (chatFile.name.lower().endswith(".json")):
+                try:
+                    return json.loads(chatFile.read())
+                except json.JSONDecodeError:
+                    print("File is not a valid JSON file")
+                    linger_with_exit(1)
+            else:
+                print("File is not a JSON file")
+                linger_with_exit(1)
+
+    except FileNotFoundError:
+        print("File not found")
+        linger_with_exit(1)
+
+
 if len(sys.argv) < 2:
     print("Usage: python alg.py <path to json file>")
     linger()
     sys.exit(1)
 
 FILE_PATH = sys.argv[1]
-try:
-    with open(FILE_PATH, "r", encoding="utf8") as chatFile:
-        if (chatFile.name.lower().endswith(".json")):
-            content = chatFile.read()
-        else:
-            print("File is not a JSON file")
-            sys.exit(1)
-
-except FileNotFoundError:
-    print("File not found")
-    linger()
-    exit(1)
-
-
-parsed = json.loads(content)
+parsed = read_json_file(FILE_PATH)
 
 you_name, you_id, person_name, person_id = find_ids(
     parsed["messages"], parsed["id"])
 
-chat_name = "Chat with " + person_name
-print(chat_name)
 
 print("You: " + you_name + " (" + str(you_id) + ")")
 print("Person: " + person_name + " (" + str(person_id) + ")")
+chat_name = "Chat with " + person_name
+print(chat_name)
 
 
 linger()
@@ -99,6 +103,7 @@ distribution_sunset = {}
 distribution_kessie = {}
 
 messages = parsed["messages"]
+
 for message in messages:
     message_string = ""
 
