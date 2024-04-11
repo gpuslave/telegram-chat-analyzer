@@ -9,4 +9,4 @@
 
 ### How to run
 1. You need to export your telegram chat history using build-in telegram functionality (export machine-readable json file)
-2. Run the script with one argument, the path to this json file (usually something like C:\Users\User\Downloads\Telegram Desktop\ChatExport_YYYY-MM-DD\result.json)
+2. Run the script (**alg.py**) with one argument, that is the path to this json file (usually something like C:\Users\User\Downloads\Telegram Desktop\ChatExport_YYYY-MM-DD\result.json)

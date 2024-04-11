@@ -92,74 +92,77 @@ def create_csv(distribution_set, boundary=27):
                 k += 1
 
 
-if len(sys.argv) < 2:
-    print("Usage: python alg.py <path to json file>")
-    linger()
-    sys.exit(1)
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python alg.py <path to json file>")
+        linger()
+        sys.exit(1)
 
-FILE_PATH = sys.argv[1]
-parsed = read_json_file(FILE_PATH)
+    FILE_PATH = sys.argv[1]
+    parsed = read_json_file(FILE_PATH)
 
-you_name, you_id, person_name, person_id = find_ids(
-    parsed["messages"], parsed["id"])
+    you_name, you_id, person_name, person_id = find_ids(
+        parsed["messages"], parsed["id"])
+
+    print("You: " + you_name + " (" + str(you_id) + ")")
+    print("Person: " + person_name + " (" + str(person_id) + ")")
+    chat_name = "Chat with " + person_name
+    print(chat_name)
+
+    distribution = {
+        you_id: {},
+        person_id: {},
+    }
+
+    for message in parsed["messages"]:
+        message_string = ""
+
+        # if a message does not contain any plain text entities then skip
+        if not message["text_entities"]:
+            continue
+
+        # finding plain text entity
+        for entity in message["text_entities"]:
+            if entity["type"] == "plain":
+                message_string = entity["text"].lower()
+                break
+
+        # pattern = r"(\W+)|(\d)"
+        PATTERN = r'\W+'
+        message_list = list(filter(None, re.split(PATTERN, message_string)))
+
+        # if no plain text words in the message then skip
+        if not message_list:
+            continue
+
+        # not to confuse with the id of the message itself
+        message_from_id = int(message["from_id"][4:])
+
+        for word in message_list:
+            distribution[message_from_id][word] = \
+                distribution[message_from_id].get(word, 0) + 1
+
+    for key in distribution.keys():
+        distribution[key] = dict(
+            sorted(distribution[key].items(),
+                   key=lambda x: x[1], reverse=True))
+
+    create_csv(distribution)
+
+    you_df = pd.read_csv(str(you_id) + ".csv")
+    person_df = pd.read_csv(str(person_id) + ".csv")
+
+    fig, axs = matplotlib.pyplot.subplots(nrows=3)
+    sns.barplot(x="word", y="entries", data=you_df, ax=axs[0])
+    sns.barplot(x="word", y="entries", data=person_df, ax=axs[1])
+    sns.barplot(x="word", y="entries", data=you_df, ax=axs[2])
+    sns.barplot(x="word", y="entries", data=person_df, ax=axs[2])
+    matplotlib.pyplot.show()
 
 
-print("You: " + you_name + " (" + str(you_id) + ")")
-print("Person: " + person_name + " (" + str(person_id) + ")")
-chat_name = "Chat with " + person_name
-print(chat_name)
+if __name__ == "__main__":
+    main()
 
-
-distribution = {
-    you_id: {},
-    person_id: {},
-}
-
-for message in parsed["messages"]:
-    message_string = ""
-
-    # if a message does not contain any plain text entities then skip
-    if not message["text_entities"]:
-        continue
-
-    # finding plain text entity
-    for entity in message["text_entities"]:
-        if entity["type"] == "plain":
-            message_string = entity["text"].lower()
-            break
-
-    # pattern = r"(\W+)|(\d)"
-    PATTERN = r'\W+'
-    message_list = list(filter(None, re.split(PATTERN, message_string)))
-
-    # if no plain text words in the message then skip
-    if not message_list:
-        continue
-
-    # not to confuse with the id of the message itself
-    message_from_id = int(message["from_id"][4:])
-
-    for word in message_list:
-        distribution[message_from_id][word] = \
-            distribution[message_from_id].get(word, 0) + 1
-
-
-for key in distribution.keys():
-    distribution[key] = dict(
-        sorted(distribution[key].items(), key=lambda x: x[1], reverse=True))
-
-create_csv(distribution)
-
-
-you_df = pd.read_csv(str(you_id) + ".csv")
-person_df = pd.read_csv(str(person_id) + ".csv")
-
-fig, axs = matplotlib.pyplot.subplots(nrows=3)
-sns.barplot(x="word", y="entries", data=you_df, ax=axs[0])
-sns.barplot(x="word", y="entries", data=person_df, ax=axs[1])
-sns.barplot(x="word", y="entries", data=you_df, ax=axs[2])
-sns.barplot(x="word", y="entries", data=person_df, ax=axs[2])
-matplotlib.pyplot.show()
 # df = pd.DataFrame.from_dict(distribution_sunset)
 # df.to_csv (r'test.csv', index=False, header=True)
 # x = int(input())
