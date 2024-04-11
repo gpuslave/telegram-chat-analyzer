@@ -1,3 +1,8 @@
+"""
+    Usage: .\\alg.py \\path\\to\\json
+    Generates overwiew of the most used words in the telegram chat.
+"""
+
 import json
 import re
 import csv
@@ -10,11 +15,22 @@ import seaborn as sns
 
 if len(sys.argv) < 2:
     print("Usage: python alg.py <path to json file>")
+    input("Press Enter to continue...")
     sys.exit(1)
 
 FILE_PATH = sys.argv[1]
-with open(FILE_PATH, "r", encoding="utf8") as chatFile:
-    content = chatFile.read()
+try:
+    with open(FILE_PATH, "r", encoding="utf8") as chatFile:
+        if (chatFile.name.lower().endswith(".json")):
+            content = chatFile.read()
+        else:
+            print("File is not a JSON file")
+            sys.exit(1)
+
+except FileNotFoundError:
+    print("File not found")
+    input("Press Enter to continue...")
+    exit(1)
 
 
 # print(content[0:400])
@@ -23,7 +39,6 @@ parsed = json.loads(content)
 chat_name = "Chat with " + parsed["name"]
 print(chat_name)
 
-# sys.exit(0)
 
 distribution_sunset = {}
 distribution_kessie = {}
