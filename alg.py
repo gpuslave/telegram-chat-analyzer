@@ -1,6 +1,6 @@
-"""
-    Usage: .\\alg.py \\path\\to\\json
-    Generates overwiew of the most used words in the telegram chat.
+""" Usage: .\\alg.py \\path\\to\\json
+
+Generates overwiew of the most used words in the telegram chat.
 """
 
 import json
@@ -13,9 +13,56 @@ import matplotlib
 import pandas as pd
 import seaborn as sns
 
+
+def linger():
+    input("Press Enter to continue...")
+
+
+def linger_with_exit(error_code):
+    input("Press Enter to exit...")
+    exit(int(error_code))
+
+
+# def find_you(messages, person_id):
+#     for message in messages:
+#         if int(message["from_id"][4:]) != person_id:
+#             return message["from_id"], message["from"]
+
+
+# def find_person(messages, person_id):
+#     for message in messages:
+#         if int(message["from_id"][4:]) != person_id:
+#             return message["from_id"], message["from"]
+
+
+def find_ids(messages, person_id):
+    """ Finds the ids and names of the two people in the chat
+
+    output: you_name, you_id, person_name, person_id
+    """
+    person_name = ""
+    you_name = ""
+    you_id = -1
+    found_person = False
+    found_you = False
+
+    # O(n)
+    for message in messages:
+        if int(message["from_id"][4:]) != person_id and not found_you:
+            you_name = message["from"]
+            you_id = int(message["from_id"][4:])
+            found_you = True
+        elif not found_person:
+            person_name = message["from"]
+            found_person = True
+
+        if found_you and found_person:
+            return you_name, you_id, person_name, person_id
+
+
 if len(sys.argv) < 2:
     print("Usage: python alg.py <path to json file>")
-    input("Press Enter to continue...")
+    linger()
     sys.exit(1)
 
 FILE_PATH = sys.argv[1]
@@ -29,16 +76,24 @@ try:
 
 except FileNotFoundError:
     print("File not found")
-    input("Press Enter to continue...")
+    linger()
     exit(1)
 
 
-# print(content[0:400])
 parsed = json.loads(content)
 
-chat_name = "Chat with " + parsed["name"]
+you_name, you_id, person_name, person_id = find_ids(
+    parsed["messages"], parsed["id"])
+
+chat_name = "Chat with " + person_name
 print(chat_name)
 
+print("You: " + you_name + " (" + str(you_id) + ")")
+print("Person: " + person_name + " (" + str(person_id) + ")")
+
+
+linger()
+exit(0)
 
 distribution_sunset = {}
 distribution_kessie = {}
@@ -63,6 +118,7 @@ for message in messages:
     if not message_list:
         continue
 
+    # rename str!
     if message["from"][0:3] == 'sun':
         for str in message_list:
             if str in distribution_sunset.keys():
