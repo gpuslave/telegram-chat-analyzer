@@ -15,4 +15,4 @@ variables.json
 
 .venv/
 
-/*.csv
+[0-9]*.csv
