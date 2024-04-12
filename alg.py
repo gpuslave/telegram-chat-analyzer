@@ -8,8 +8,6 @@ import re
 import csv
 import sys
 import matplotlib
-# import pyarrow
-# import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -80,16 +78,30 @@ def read_json_file(file_path):
 
 def create_csv(distribution_set, boundary=27):
     for key in distribution_set.keys():
-        k = 0
+        words_written = 0
         with open(str(key) + '.csv', 'w', newline='',
                   encoding='utf-8') as new_csv:
-            z = csv.writer(new_csv)
-            z.writerow(["word", "entries"])
-            for new_k, new_v in distribution_set[key].items():
-                if k >= boundary:
+            csv_writer = csv.writer(new_csv)
+            csv_writer.writerow(["word", "entries"])
+            for word_col, entr_col in distribution_set[key].items():
+                if words_written >= boundary:
                     break
-                z.writerow([new_k, new_v])
-                k += 1
+                csv_writer.writerow([word_col, entr_col])
+                words_written += 1
+
+
+def get_message_string(message):
+    # finding plain text entity
+    for entity in message["text_entities"]:
+        if entity["type"] == "plain":
+            return entity["text"].lower()
+    return None
+
+
+def get_message_list(message_string):
+    # pattern = r"(\W+)|(\d)"
+    PATTERN = r'\W+'
+    return list(filter(None, re.split(PATTERN, message_string)))
 
 
 def main():
@@ -115,21 +127,16 @@ def main():
     }
 
     for message in parsed["messages"]:
-        message_string = ""
-
         # if a message does not contain any plain text entities then skip
         if not message["text_entities"]:
             continue
 
-        # finding plain text entity
-        for entity in message["text_entities"]:
-            if entity["type"] == "plain":
-                message_string = entity["text"].lower()
-                break
+        message_string = get_message_string(message)
 
-        # pattern = r"(\W+)|(\d)"
-        PATTERN = r'\W+'
-        message_list = list(filter(None, re.split(PATTERN, message_string)))
+        if not message_string:
+            continue
+
+        message_list = get_message_list(message_string)
 
         # if no plain text words in the message then skip
         if not message_list:
