@@ -46,11 +46,14 @@ def find_ids(messages, person_id):
 
     # O(n)
     for message in messages:
-        if int(message["from_id"][4:]) != person_id and not found_you:
+        from_id = int(message["from_id"][4:])
+
+        if from_id != person_id and not found_you:
             you_name = message["from"]
             you_id = int(message["from_id"][4:])
             found_you = True
-        elif not found_person:
+
+        if from_id == person_id and not found_person:
             person_name = message["from"]
             found_person = True
 
@@ -58,25 +61,27 @@ def find_ids(messages, person_id):
             return you_name, you_id, person_name, person_id
 
 
-def read_json_file(file_path):
-    try:
-        with open(file_path, "r", encoding="utf8") as chatFile:
-            if (chatFile.name.lower().endswith(".json")):
-                try:
-                    return json.loads(chatFile.read())
-                except json.JSONDecodeError:
-                    print("File is not a valid JSON file")
-                    linger_with_exit(1)
-            else:
-                print("File is not a JSON file")
-                linger_with_exit(1)
+def read_json_file():
+    while (True):
+        file_path = input("Enter full path to the telegram JSON file: ")
+        # file_path = \
+        #     r'C:\Users\lnemt\Downloads\Telegram Desktop\ChatExport_2024-04-15\result.json'
+        try:
+            with open(file_path, "r", encoding="utf8") as chatFile:
+                if (chatFile.name.lower().endswith(".json")):
+                    try:
+                        return json.loads(chatFile.read()), file_path
+                    except json.JSONDecodeError:
+                        print("File is not a valid JSON file")
+                        linger_with_exit(1)
+                else:
+                    print("File is not a JSON file")
 
-    except FileNotFoundError:
-        print("File not found")
-        linger_with_exit(1)
+        except FileNotFoundError:
+            print("File not found")
 
 
-def create_csv(distribution_set, boundary=27):
+def create_csv(distribution_set, boundary=25):
     for key in distribution_set.keys():
         words_written = 0
         with open(str(key) + '.csv', 'w', newline='',
@@ -105,13 +110,14 @@ def get_message_list(message_string):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python alg.py <path to json file>")
-        linger()
-        sys.exit(1)
 
-    FILE_PATH = sys.argv[1]
-    parsed = read_json_file(FILE_PATH)
+    # if len(sys.argv) < 2:
+    #     print("Usage: python alg.py <path to json file>")
+    #     linger()
+    #     sys.exit(1)
+    # FILE_PATH = sys.argv[1]
+
+    parsed, FILE_PATH = read_json_file()
 
     you_name, you_id, person_name, person_id = find_ids(
         parsed["messages"], parsed["id"])
@@ -159,12 +165,26 @@ def main():
     you_df = pd.read_csv(str(you_id) + ".csv")
     person_df = pd.read_csv(str(person_id) + ".csv")
 
-    fig, axs = matplotlib.pyplot.subplots(nrows=3)
-    sns.barplot(x="word", y="entries", data=you_df, ax=axs[0])
-    sns.barplot(x="word", y="entries", data=person_df, ax=axs[1])
-    sns.barplot(x="word", y="entries", data=you_df, ax=axs[2])
-    sns.barplot(x="word", y="entries", data=person_df, ax=axs[2])
-    matplotlib.pyplot.show()
+    fig, axs = matplotlib.pyplot.subplots(nrows=3, figsize=(15, 10))
+    fig.subplots_adjust(hspace=0.5)
+
+    axs[0].set_title(you_name)
+    sns.barplot(x="word", y="entries", data=you_df,
+                ax=axs[0])
+
+    axs[1].set_title(person_name)
+    sns.barplot(x="word", y="entries", data=person_df,
+                ax=axs[1])
+
+    axs[2].set_title("Comparison")
+    sns.barplot(x="word", y="entries", data=you_df,
+                ax=axs[2])
+    sns.barplot(x="word", y="entries", data=person_df,
+                ax=axs[2])
+
+    fig.savefig('fig.png', dpi=600)
+    matplotlib.pyplot.close(fig)
+    # matplotlib.pyplot.show()
 
 
 if __name__ == "__main__":

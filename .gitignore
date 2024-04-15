@@ -14,5 +14,12 @@ variables.json
 *.vsix
 
 .venv/
+__pycache__/
 
 [0-9]*.csv
+build
+dist
+pyinst
+*.png
+*.spec
+test.py
