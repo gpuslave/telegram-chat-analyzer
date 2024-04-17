@@ -160,10 +160,16 @@ def main():
             sorted(distribution[key].items(),
                    key=lambda x: x[1], reverse=True))
 
-    create_csv(distribution)
+    """If you want to save the data to a csv file, uncomment the line below
+    """
+    # create_csv(distribution)
+    # you_df = pd.read_csv(str(you_id) + ".csv")
+    # person_df = pd.read_csv(str(person_id) + ".csv")
 
-    you_df = pd.read_csv(str(you_id) + ".csv")
-    person_df = pd.read_csv(str(person_id) + ".csv")
+    you_df = pd.DataFrame(list(distribution[you_id].items())[0:26],
+                          columns=["word", "entries"])
+    person_df = pd.DataFrame(list(distribution[person_id].items())[0:26],
+                             columns=["word", "entries"])
 
     fig, axs = matplotlib.pyplot.subplots(nrows=3, figsize=(15, 10))
     fig.subplots_adjust(hspace=0.5)
