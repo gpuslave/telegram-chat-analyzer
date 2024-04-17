@@ -82,6 +82,7 @@ def read_json_file():
 
 
 def create_csv(distribution_set, boundary=25):
+    # to do: create those csv files in a separate folder using os.path.exists() and os.makedirs()
     for key in distribution_set.keys():
         words_written = 0
         with open(str(key) + '.csv', 'w', newline='',
