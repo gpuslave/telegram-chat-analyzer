@@ -1,6 +1,4 @@
-""" Usage: .\\alg.py \\path\\to\\json
-
-Generates overwiew of the most used words in the telegram chat.
+"""Generates an overwiew of the most used words in the telegram chat.
 """
 
 import json
@@ -62,6 +60,7 @@ def find_ids(messages, person_id):
 
 
 def read_json_file():
+    # to do: add pathlib support
     while (True):
         file_path = input("Enter full path to the telegram JSON file: ")
         # file_path = \
@@ -150,6 +149,8 @@ def main():
             continue
 
         # not to confuse with the id of the message itself
+        # slicing from 4 beacause from_id is "user1234..." and
+        # we only want numbers
         message_from_id = int(message["from_id"][4:])
 
         for word in message_list:
@@ -167,6 +168,7 @@ def main():
     # you_df = pd.read_csv(str(you_id) + ".csv")
     # person_df = pd.read_csv(str(person_id) + ".csv")
 
+    # to do: refactor these 2 lines into something readable
     you_df = pd.DataFrame(list(distribution[you_id].items())[0:26],
                           columns=["word", "entries"])
     person_df = pd.DataFrame(list(distribution[person_id].items())[0:26],
@@ -199,26 +201,3 @@ if __name__ == "__main__":
 
 # df = pd.DataFrame.from_dict(distribution_sunset)
 # df.to_csv (r'test.csv', index=False, header=True)
-# x = int(input())
-# print(distribution_sunset)
-# print()
-# print(distribution_kessie)
-
-# SAVING TO A FILE
-# fig, axs = matplotlib.pyplot.subplots(nrows=3)
-# sns.barplot(x="word", y="entries", data=sun_dataframe, ax=axs[0])
-# sns.barplot(x="word", y="entries", data=kes_dataframe, ax=axs[1])
-# sns.barplot(x="word", y="entries", data=sun_dataframe, ax=axs[2])
-# sns.barplot(x="word", y="entries", data=kes_dataframe, ax=axs[2])
-
-# # Save the figure to a file
-# matplotlib.pyplot.savefig('output.png')
-
-# If you want to save each plot to a separate file, you can do so like this:
-# fig1, ax1 = matplotlib.pyplot.subplots()
-# sns.barplot(x="word", y="entries", data=sun_dataframe, ax=ax1)
-# fig1.savefig('output1.png')
-
-# fig2, ax2 = matplotlib.pyplot.subplots()
-# sns.barplot(x="word", y="entries", data=kes_dataframe, ax=ax2)
-# fig2.savefig('output2.png')
