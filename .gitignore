@@ -1,5 +1,3 @@
-variables.json
-
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
@@ -13,14 +11,25 @@ variables.json
 # Built Visual Studio Code Extensions
 *.vsix
 
+# bot token
+variables.json
+
+# python leftovers
 .venv/
 __pycache__/
 
 [0-9]*.csv
-build
-dist
-pyinst
-*.png
+csv/
+
+# pyinstaller
+build/
+dist/
+pyinst/
 *.spec
+
+.mypy_cache/
+
+*.png
+
 test.py
-csv
+pandas_test.py
